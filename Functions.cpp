@@ -267,8 +267,3 @@ void scheduleMatches() {
     cout << "\nMatches scheduled successfully on weekends!" << endl;
 }
 
-int main()
-{
-    generateFixtures();
-    scheduleMatches();
-}
