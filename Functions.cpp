@@ -11,6 +11,11 @@
 
 using namespace std;
 
+struct Match {
+    string team1;
+    string team2;
+};
+
 void generateFixtures() {
     // Opening  the Teams file originally called teams_csv
     ifstream ip(R"(../Teams.csv)");
@@ -176,4 +181,94 @@ void generateFixtures() {
 
     teamsGamesP.close();
     fixturedGames.close();
+}
+void scheduleMatches() {
+    // Opening the fixturedGames file which contains the generated fixtures
+    ifstream fixtureFile(R"(../fixturedGames.csv)");
+    if (!fixtureFile.is_open()) {
+        cout << "Error: Could not open the fixtured games file to schedule weekend matches." << endl;
+        return;
+    }
+
+    // Read the fixtures into a vector of Match structures
+    vector<Match> matches;
+    string match;
+    while (getline(fixtureFile, match)) {
+        stringstream ss(match);
+        string team1, team2;
+        getline(ss, team1, ' ');
+        ss.ignore(3);
+        getline(ss, team2,' ');
+        matches.push_back({team1, team2});
+    }
+    fixtureFile.close();
+
+    // Create file for the scheduled weekends matches
+    ofstream scheduleFile(R"(../scheduledWeekends.csv)");
+    if (!scheduleFile.is_open()) {
+        cout << "Error: Failed to create the file to store the weekend games." << endl;
+        return;
+    }
+
+    int weekendCount = 1;
+    int matchesThisWeekend = 0;
+
+    // First half: schedule as (team1 Home vs team2 Away)
+    for (size_t i = 0; i < matches.size(); ++i) {
+        Match& match = matches[i];
+
+        if (matchesThisWeekend == 0) {
+            if (weekendCount > 1) {
+                scheduleFile << "\n\n";
+            }
+            scheduleFile << "\t\t\tWeekend " << weekendCount << ":\n";
+        }
+
+        scheduleFile << "\t" << match.team1 << " (Home) vs " << match.team2 << " (Away)\n";
+
+        matchesThisWeekend++;
+        if (matchesThisWeekend == 2) {
+            weekendCount++;
+            matchesThisWeekend = 0;
+        }
+    }
+
+    // Check for the last weekend in the first half
+    if (matchesThisWeekend < 2 && weekendCount > 1) {
+        // Add matches from the second half to the previous weekend
+        int secondHalfStart = matches.size() / 2; // Starting index for the second half
+        for (size_t i = secondHalfStart; i < matches.size() && matchesThisWeekend < 2; ++i) {
+            Match& match = matches[i];
+            scheduleFile << "\t" << match.team2 << " (Home) vs " << match.team1 << " (Away)\n";
+            matchesThisWeekend++;
+        }
+        weekendCount++;
+    }
+
+    // Second half: continue scheduling matches (team2 Home vs team1 Away)
+    matchesThisWeekend = 0;
+    for (size_t i = 0; i < matches.size(); ++i) {
+        Match& match = matches[i];
+        if (matchesThisWeekend == 0) {
+            scheduleFile << "\n\n";
+            scheduleFile << "\t\t\tWeekend " << weekendCount << ":\n";
+        }
+
+        scheduleFile << "\t" << match.team2 << " (Home) vs " << match.team1 << " (Away)\n";
+
+        matchesThisWeekend++;
+        if (matchesThisWeekend == 2) {
+            weekendCount++;
+            matchesThisWeekend = 0;
+        }
+    }
+
+    scheduleFile.close();
+    cout << "\nMatches scheduled successfully on weekends!" << endl;
+}
+
+int main()
+{
+    generateFixtures();
+    scheduleMatches();
 }

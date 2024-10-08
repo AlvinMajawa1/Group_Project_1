@@ -1,3 +1,3 @@
-C:/PROGRAMMING/CLion/School/Projects/MatchSceduling/cmake-build-debug/CMakeFiles/MatchSceduling.dir
-C:/PROGRAMMING/CLion/School/Projects/MatchSceduling/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/PROGRAMMING/CLion/School/Projects/MatchSceduling/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+C:/Users/majaw/CLionProjects/Group_Project_1/cmake-build-debug/CMakeFiles/MatchSceduling.dir
+C:/Users/majaw/CLionProjects/Group_Project_1/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/majaw/CLionProjects/Group_Project_1/cmake-build-debug/CMakeFiles/rebuild_cache.dir
