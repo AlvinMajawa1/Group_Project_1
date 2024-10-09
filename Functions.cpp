@@ -266,4 +266,75 @@ void scheduleMatches() {
     scheduleFile.close();
     cout << "\nMatches scheduled successfully on weekends!" << endl;
 }
+void addStadiumInfo() {
+    // Open the existing scheduledWeekends file
+    ifstream scheduleFile(R"(../scheduledWeekends.csv)");
+    if (!scheduleFile.is_open()) {
+        cout << "Error: Could not open the scheduled weekends file." << endl;
+        return;
+    }
 
+    // Open the Teams file to get stadium information
+    ifstream teamsFile(R"(../Teams.csv)");
+    if (!teamsFile.is_open()) {
+        cout << "Error: Could not open the Teams file." << endl;
+        return;
+    }
+
+    // Create a map to store team names and their corresponding stadiums
+    map<string, string> teamStadiums;
+    string line;
+    getline(teamsFile, line); // Skip header
+    while (getline(teamsFile, line)) {
+        stringstream ss(line);
+        string teamName, localTown, stadium;
+        getline(ss, teamName, ',');
+        getline(ss, localTown, ',');
+        getline(ss, stadium, ',');
+        // Trim whitespace from team name and stadium
+        teamName.erase(0, teamName.find_first_not_of(" \t\n\r\f\v"));
+        teamName.erase(teamName.find_last_not_of(" \t\n\r\f\v") + 1);
+        stadium.erase(0, stadium.find_first_not_of(" \t\n\r\f\v"));
+        stadium.erase(stadium.find_last_not_of(" \t\n\r\f\v") + 1);
+        teamStadiums[teamName] = stadium;
+    }
+    teamsFile.close();
+
+    // Create a new file for the updated schedule
+    ofstream updatedScheduleFile(R"(../updatedScheduledWeekends.csv)");
+    if (!updatedScheduleFile.is_open()) {
+        cout << "Error: Could not create the updated scheduled weekends file." << endl;
+        return;
+    }
+
+    // Process the scheduledWeekends file and add stadium information
+    while (getline(scheduleFile, line)) {
+        if (line.find("Weekend") != string::npos) {
+            updatedScheduleFile << line << endl;
+        } else if (!line.empty()) {
+            size_t vsPos = line.find(" vs ");
+            if (vsPos != string::npos) {
+                string homeTeam = line.substr(1, vsPos - 7); // Extract home team name
+                // Trim whitespace from home team name
+                homeTeam.erase(0, homeTeam.find_first_not_of(" \t\n\r\f\v"));
+                homeTeam.erase(homeTeam.find_last_not_of(" \t\n\r\f\v") + 1);
+                if (teamStadiums.find(homeTeam) != teamStadiums.end()) {
+                    string stadium = teamStadiums[homeTeam];
+                    updatedScheduleFile << "Playing at: " << stadium << endl;
+                } else {
+                    cout << "Warning: Stadium not found for team: " << homeTeam << endl;
+                }
+                updatedScheduleFile << line << endl;
+            } else {
+                updatedScheduleFile << line << endl;
+            }
+        } else {
+            updatedScheduleFile << line << endl;
+        }
+    }
+
+    scheduleFile.close();
+    updatedScheduleFile.close();
+
+    cout << "Stadium information added successfully to the scheduled matches!" << endl;
+}
