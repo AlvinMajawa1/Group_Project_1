@@ -5,4 +5,5 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_executable(MatchSceduling main.cpp
         Functions.cpp
-        Functions.cpp)
+        Functions.cpp
+        functions.h)
